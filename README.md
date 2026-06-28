@@ -1,4 +1,4 @@
-# Fashion Search — AI-Powered Visual Fashion Search Engine
+# drp.ai— AI-Powered Visual Fashion Search Engine
 
 Upload a clothing or sneaker image and find visually similar products sorted by price across multiple shopping sites.
 
