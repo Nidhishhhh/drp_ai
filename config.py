@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     # ----------------------------------------------------------
     # App Settings
     # ----------------------------------------------------------
-    app_name: str = "Fashion Search"
+    app_name: str = "drp.ai"
     app_version: str = "0.1.0"
     debug: bool = True
     secret_key: str = "change-this-in-production"
