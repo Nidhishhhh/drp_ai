@@ -1,3 +1,7 @@
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import search
