@@ -1,0 +1,30 @@
+# drp.ai — Phase 5
+# YOLO dataset config for fine-tuning on DeepFashion2
+#
+# Place this at: data/yolo_dataset/data.yaml
+# (the convert_to_yolo.py script creates the images/ and labels/ folders
+#  this file points to)
+
+path: D:/drp_ai/data/yolo_dataset   # ABSOLUTE path — ultralytics resolves relative
+                                      # paths against its own global datasets_dir,
+                                      # not your cwd, so this must be absolute.
+                                      # Use forward slashes even on Windows.
+train: images/train
+val: images/val
+
+nc: 13   # number of classes
+
+names:
+  0: short_sleeve_top
+  1: long_sleeve_top
+  2: short_sleeve_outwear
+  3: long_sleeve_outwear
+  4: vest
+  5: sling
+  6: shorts
+  7: trousers
+  8: skirt
+  9: short_sleeve_dress
+  10: long_sleeve_dress
+  11: vest_dress
+  12: sling_dress

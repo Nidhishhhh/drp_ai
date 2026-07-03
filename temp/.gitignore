@@ -103,3 +103,14 @@ htmlcov/
 # ============================================================
 celerybeat-schedule
 celerybeat.pid
+
+
+
+data/index/drp.index
+data/index/metadata.json
+data/index/metadata.json.bak
+data/index/metadata_pre_prices.json.bak
+models/drp_yolo.pt
+temp/
+runs/
+*.pt

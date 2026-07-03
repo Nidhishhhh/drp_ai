@@ -69,8 +69,9 @@ class Settings(BaseSettings):
     # ----------------------------------------------------------
     # AI Models
     # ----------------------------------------------------------
-    yolo_model_path: str = "models/yolov8n.pt"
-    clip_model_name: str = "ViT-B/32"
+    yolo_model_path: str = "models/drp_yolo.pt"          # was yolov8n.pt
+    faiss_index_path: str = "data/index/drp.index"        # was data/product_index/fashion.index
+    product_catalog_path: str = "data/index/metadata.json" # was data/product_catalog/products.json
 
     # Device auto-detection:
     # - Uses "cuda" if NVIDIA GPU is available

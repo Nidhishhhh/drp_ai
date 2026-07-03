@@ -4,13 +4,32 @@ import os
 import uuid
 
 TEMP_DIR = "temp"
-model = YOLO("yolov8n.pt")
+model = YOLO("models/drp_yolo.pt")  # fine-tuned on DeepFashion2 (Phase 5)
+
+# DeepFashion2 class names — must match the order used during training
+CLASS_NAMES = {
+    0: "short_sleeve_top",
+    1: "long_sleeve_top",
+    2: "short_sleeve_outwear",
+    3: "long_sleeve_outwear",
+    4: "vest",
+    5: "sling",
+    6: "shorts",
+    7: "trousers",
+    8: "skirt",
+    9: "short_sleeve_dress",
+    10: "long_sleeve_dress",
+    11: "vest_dress",
+    12: "sling_dress",
+}
+
+CONFIDENCE_THRESHOLD = 0.25  # ignore detections below this — reduces false positives
 
 def detect_item(image_path: str) -> dict:
     print(f"[DEBUG] Running YOLO on: {image_path}")
 
     try:
-        results = model(image_path, verbose=False)
+        results = model(image_path, verbose=False, conf=CONFIDENCE_THRESHOLD)
         print(f"[DEBUG] YOLO results: {len(results)} detections")
 
         detections = results[0].boxes
@@ -21,7 +40,7 @@ def detect_item(image_path: str) -> dict:
                 "detected_item": "none",
                 "confidence": 0.0,
                 "bounding_box": [],
-                "cropped_image_path": "",
+                "_cropped_image_path": "",  # internal — not sent to client
                 "status": "no_detection"
             }
 
@@ -29,7 +48,7 @@ def detect_item(image_path: str) -> dict:
         best_idx = detections.conf.argmax().item()
         confidence = float(detections.conf[best_idx])
         class_id = int(detections.cls[best_idx])
-        class_name = model.names[class_id]
+        class_name = CLASS_NAMES.get(class_id, f"class_{class_id}")
         bbox = detections.xyxy[best_idx].tolist()  # [x1, y1, x2, y2]
 
         print(f"[DEBUG] Best detection: {class_name} ({confidence:.2f}) at {bbox}")
@@ -59,7 +78,7 @@ def detect_item(image_path: str) -> dict:
             "detected_item": class_name,
             "confidence": round(confidence, 4),
             "bounding_box": bbox,
-            "cropped_image_path": crop_path,
+            "_cropped_image_path": crop_path,  # internal — used by embedder, not sent to client
             "status": "success"
         }
 
@@ -69,6 +88,6 @@ def detect_item(image_path: str) -> dict:
             "detected_item": "unknown",
             "confidence": 0,
             "bounding_box": [],
-            "cropped_image_path": "",
+            "_cropped_image_path": "",  # internal — not sent to client
             "status": "error"
         }
