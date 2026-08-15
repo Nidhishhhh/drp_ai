@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -33,10 +33,11 @@ const STEP_LABELS = {
   detecting: "Finding the garment...",
   embedding: "Understanding the style...",
   searching: "Scanning 364,000 items...",
+  enriching: "Finding where to buy...",
 };
 
 export default function App() {
-  const [phase, setPhase] = useState("upload"); // upload | searching | results
+  const [phase, setPhase] = useState("upload");
   const [preview, setPreview] = useState(null);
   const [step, setStep] = useState("queued");
   const [results, setResults] = useState(null);
@@ -64,6 +65,17 @@ export default function App() {
       });
       const { task_id } = await res.json();
       const result = await pollResults(task_id, setStep);
+      
+      // DEBUG: Log the response to check price_display
+      console.log("[drp.ai] Full results:", result);
+      console.log("[drp.ai] First item metadata:", result.similar_items?.[0]?.metadata);
+      console.log("[drp.ai] Price display check:", result.similar_items?.map(item => ({
+        name: item.metadata.product_name,
+        price: item.metadata.price,
+        currency: item.metadata.currency,
+        price_display: item.metadata.price_display
+      })));
+      
       setResults(result);
       setPhase("results");
     } catch (e) {
@@ -71,6 +83,22 @@ export default function App() {
       setPhase("upload");
     }
   }, [sortBy]);
+
+  useEffect(() => {
+    const handlePaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) handleFile(file);
+          break;
+        }
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [handleFile]);
 
   const onDrop = useCallback((e) => {
     e.preventDefault();
@@ -109,10 +137,6 @@ export default function App() {
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
         }
 
         .upload-zone {
@@ -165,13 +189,34 @@ export default function App() {
           border-radius: 12px;
           overflow: hidden;
           transition: all 0.25s ease;
-          cursor: pointer;
           animation: fadeUp 0.4s ease both;
         }
         .product-card:hover {
           border-color: ${COLORS.accent}60;
           transform: translateY(-3px);
           box-shadow: 0 8px 32px ${COLORS.accent}15;
+        }
+
+        .product-image {
+          height: 200px;
+          background: linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.border} 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+        }
+        .product-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .product-image .emoji-placeholder {
+          font-size: 48px;
+        }
+
+        .product-info {
+          padding: 14px;
         }
 
         .buy-btn {
@@ -211,6 +256,9 @@ export default function App() {
           font-size: 11px;
           font-weight: 500;
           text-transform: capitalize;
+          position: absolute;
+          top: 10px;
+          right: 10px;
         }
       `}</style>
 
@@ -243,14 +291,12 @@ export default function App() {
             </p>
           </div>
 
-          {/* Sort selector */}
           <div style={{ display: "flex", gap: 8 }}>
             {[["relevance", "Best match"], ["price_asc", "Cheapest first"], ["price_desc", "Most expensive"]].map(([val, label]) => (
               <button key={val} className={`sort-btn ${sortBy === val ? "active" : ""}`} onClick={() => setSortBy(val)}>{label}</button>
             ))}
           </div>
 
-          {/* Upload zone */}
           <div
             className={`upload-zone ${dragging ? "dragging" : ""}`}
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -265,7 +311,7 @@ export default function App() {
                 <div style={{ fontSize: 36, marginBottom: 12 }}>↑</div>
                 <div style={{ fontSize: 14, color: COLORS.textMuted, lineHeight: 1.5 }}>
                   Drop a photo here<br />
-                  <span style={{ fontSize: 12, color: COLORS.textDim }}>or click to browse</span>
+                  <span style={{ fontSize: 12, color: COLORS.textDim }}>or click to browse · ctrl+v to paste</span>
                 </div>
               </div>
             )}
@@ -345,28 +391,32 @@ export default function App() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
             {results.similar_items?.map((item, i) => (
               <div key={item.item_id} className="product-card" style={{ animationDelay: `${i * 40}ms` }}>
-                {/* Image placeholder */}
-                <div style={{ height: 200, background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.border} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                  <span style={{ fontSize: 48 }}>👗</span>
-                  <div style={{ position: "absolute", top: 10, right: 10 }}>
-                    <span className="tag">{item.metadata.category?.replace(/_/g, " ")}</span>
-                  </div>
+                {/* Image */}
+                <div className="product-image">
+                  {item.metadata.product_image ? (
+                    <img src={item.metadata.product_image} alt={item.metadata.product_name || "product"} />
+                  ) : (
+                    <span className="emoji-placeholder">👗</span>
+                  )}
                 </div>
 
                 {/* Info */}
-                <div style={{ padding: 14 }}>
+                <div className="product-info">
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                     <div>
                       <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2, textTransform: "capitalize" }}>
-                        {item.metadata.category?.replace(/_/g, " ")}
+                        {item.metadata.product_name || item.metadata.category?.replace(/_/g, " ") || "Product"}
                       </p>
-                      <p style={{ fontSize: 12, color: COLORS.textMuted }}>{item.metadata.store}</p>
+                      <p style={{ fontSize: 12, color: COLORS.textMuted }}>{item.metadata.store || "Online store"}</p>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <p style={{ fontSize: 16, fontWeight: 700, color: COLORS.accent }}>
-                        ${item.metadata.price?.toFixed(2)}
+                        {item.metadata.price_display && item.metadata.price_display !== "USD" && item.metadata.price_display !== "$" 
+                          ? item.metadata.price_display 
+                          : item.metadata.price && item.metadata.price > 0
+                            ? (item.metadata.currency === "INR" ? `₹${Math.round(item.metadata.price)}` : `$${item.metadata.price?.toFixed(2)}`)
+                            : "Check price"}
                       </p>
-                      <p style={{ fontSize: 11, color: COLORS.textDim }}>{item.metadata.currency}</p>
                     </div>
                   </div>
 
@@ -374,9 +424,7 @@ export default function App() {
                     <span style={{ fontSize: 11, color: COLORS.textDim }}>
                       {Math.round(item.score * 100)}% match
                     </span>
-                    <span style={{ fontSize: 11, color: COLORS.textDim, textTransform: "capitalize" }}>
-                      {item.metadata.source}
-                    </span>
+                    {/* REMOVED: The URL (www2.hm.com) and the "Lens" text */}
                   </div>
 
                   <button

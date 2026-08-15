@@ -26,6 +26,21 @@ META_PATH  = Path("data/index/metadata.json")
 # Leave empty ("") if dataset images aren't available on this machine.
 DATASET_BASE_PATH = os.getenv("DATASET_BASE_PATH", "")
 
+def add_item(embedding: list[float], metadata: dict = {}) -> str:
+    # ... existing code ...
+    
+    # If there's an image_path, convert it to a URL
+    if "image_path" in metadata:
+        # Convert Windows path to URL path
+        # e.g., "data/products/train/image/000001.jpg" → "/products/train/image/000001.jpg"
+        rel_path = metadata["image_path"].replace("\\", "/")
+        # Remove any leading "data/" if present
+        if rel_path.startswith("data/"):
+            rel_path = rel_path[5:]  # Remove "data/"
+        metadata["product_image"] = f"/products/{rel_path}"
+    
+    # ... rest of code ...
+
 
 def _resolve_path(portable_path: str) -> str:
     """
@@ -90,5 +105,8 @@ def search_similar(embedding: list, top_k: int = 10) -> list:
                 "image_path": resolved,
             }
         })
+        
+        
+
 
     return results

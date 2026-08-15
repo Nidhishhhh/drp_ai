@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import search, auth
 from database.session import init_db
 import uvicorn
+from fastapi.staticfiles import StaticFiles
+
 
 
 @asynccontextmanager
@@ -33,6 +35,7 @@ app.add_middleware(
 
 app.include_router(search.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1/auth")
+app.mount("/products", StaticFiles(directory="data/products"), name="products")
 
 
 @app.get("/")

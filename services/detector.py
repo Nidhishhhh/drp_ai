@@ -6,6 +6,8 @@ import uuid
 TEMP_DIR = "temp"
 model = YOLO("models/drp_yolo.pt")  # fine-tuned on DeepFashion2 (Phase 5)
 
+from utils.gender_detector import detect_gender_from_image
+
 # DeepFashion2 class names — must match the order used during training
 CLASS_NAMES = {
     0: "short_sleeve_top",
@@ -91,3 +93,5 @@ def detect_item(image_path: str) -> dict:
             "_cropped_image_path": "",  # internal — not sent to client
             "status": "error"
         }
+        
+        
