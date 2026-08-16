@@ -5,13 +5,12 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import search, auth
 from database.session import init_db
 import uvicorn
 from fastapi.staticfiles import StaticFiles
 
 # ==========================================
-# AUTO-DOWNLOAD MISSING FILES ON STARTUP
+# AUTO-DOWNLOAD MISSING FILES (RUNS FIRST!)
 # ==========================================
 def download_file(url, dest_path):
     """Downloads a file if it does not exist."""
@@ -34,6 +33,23 @@ def download_file(url, dest_path):
         print(f"❌ ERROR downloading {dest_path}: {e}")
         raise e
 
+# --- REPLACE THESE URLS WITH YOUR ACTUAL DIRECT DOWNLOAD LINKS ---
+MODEL_URL = "https://drive.google.com/file/d/1FHPHGUQ38CNDUJHnH-vFd0JXfUFfpR9r/view?usp=sharing" 
+INDEX_URL = "https://drive.google.com/file/d/1upVXtdh43kJg_zwSPjJPikgV-7VRx6dn/view?usp=sharing"
+METADATA_URL = "https://drive.google.com/file/d/1lW3fpYYXaTQnjQpZuzU1pERzV7KhB54N/view?usp=sharing"
+
+# Download Model and Index files BEFORE importing routers
+print("[drp.ai] Downloading required files...")
+download_file(MODEL_URL, "models/drp_yolo.pt")
+download_file(INDEX_URL, "data/index/drp.index")
+download_file(METADATA_URL, "data/index/metadata.json")
+print("[drp.ai] All files downloaded successfully! ✅")
+
+# ==========================================
+# NOW IMPORT ROUTERS (AFTER FILES ARE DOWNLOADED)
+# ==========================================
+from routers import search, auth
+
 # ==========================================
 # LIFESPAN (Runs on Startup)
 # ==========================================
@@ -41,28 +57,11 @@ def download_file(url, dest_path):
 async def lifespan(app: FastAPI):
     print("[drp.ai] Initializing database...")
     await init_db()
-    
-    print("[drp.ai] Checking for missing model & index files...")
-    
-    # --- REPLACE THESE URLS WITH YOUR ACTUAL DIRECT DOWNLOAD LINKS ---
-    # Example Dropbox link format: "https://www.dropbox.com/s/abcd123/drp_yolo.pt?dl=1"
-    MODEL_URL = "https://drive.google.com/file/d/1FHPHGUQ38CNDUJHnH-vFd0JXfUFfpR9r/view?usp=sharing" 
-    INDEX_URL = "https://drive.google.com/file/d/1upVXtdh43kJg_zwSPjJPikgV-7VRx6dn/view?usp=sharing"
-    METADATA_URL = "https://drive.google.com/file/d/1lW3fpYYXaTQnjQpZuzU1pERzV7KhB54N/view?usp=sharing"
-    
-    # Download YOLO Model
-    download_file(MODEL_URL, "models/drp_yolo.pt")
-    
-    # Download FAISS Index & Metadata
-    download_file(INDEX_URL, "data/index/drp.index")
-    download_file(METADATA_URL, "data/index/metadata.json")
-
     print("[drp.ai] App started ✅")
     yield
     print("[drp.ai] App shutting down")
 
 
-#
 app = FastAPI(
     title="drp.ai",
     description="AI-powered fashion visual search engine",
