@@ -1,4 +1,5 @@
 import os
+import requests
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from contextlib import asynccontextmanager
@@ -9,11 +10,53 @@ from database.session import init_db
 import uvicorn
 from fastapi.staticfiles import StaticFiles
 
+# ==========================================
+# AUTO-DOWNLOAD MISSING FILES ON STARTUP
+# ==========================================
+def download_file(url, dest_path):
+    """Downloads a file if it does not exist."""
+    if os.path.exists(dest_path):
+        print(f"✅ File already exists: {dest_path}")
+        return
 
+    print(f"⬇️ Downloading {dest_path}...")
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        with open(dest_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        print(f"✅ Download complete: {dest_path}")
+    except Exception as e:
+        print(f"❌ ERROR downloading {dest_path}: {e}")
+        raise e
 
+# ==========================================
+# LIFESPAN (Runs on Startup)
+# ==========================================
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("[drp.ai] Initializing database...")
     await init_db()
+    
+    print("[drp.ai] Checking for missing model & index files...")
+    
+    # --- REPLACE THESE URLS WITH YOUR ACTUAL DIRECT DOWNLOAD LINKS ---
+    # Example Dropbox link format: "https://www.dropbox.com/s/abcd123/drp_yolo.pt?dl=1"
+    MODEL_URL = "https://drive.google.com/file/d/1FHPHGUQ38CNDUJHnH-vFd0JXfUFfpR9r/view?usp=sharing" 
+    INDEX_URL = "https://drive.google.com/file/d/1upVXtdh43kJg_zwSPjJPikgV-7VRx6dn/view?usp=sharing"
+    METADATA_URL = "https://drive.google.com/file/d/1lW3fpYYXaTQnjQpZuzU1pERzV7KhB54N/view?usp=sharing"
+    
+    # Download YOLO Model
+    download_file(MODEL_URL, "models/drp_yolo.pt")
+    
+    # Download FAISS Index & Metadata
+    download_file(INDEX_URL, "data/index/drp.index")
+    download_file(METADATA_URL, "data/index/metadata.json")
+
     print("[drp.ai] App started ✅")
     yield
     print("[drp.ai] App shutting down")
