@@ -62,6 +62,7 @@ async def lifespan(app: FastAPI):
     print("[drp.ai] App shutting down")
 
 
+#
 app = FastAPI(
     title="drp.ai",
     description="AI-powered fashion visual search engine",
