@@ -13,7 +13,7 @@ torchaudio
 ultralytics==8.2.18           # YOLOv8 - object detection
 open-clip-torch==2.24.0       # CLIP - image embeddings
 opencv-python-headless==4.9.0.80  # OpenCV - image preprocessing (headless = no GUI deps)
-Pillow==10.3.0                # Image loading and conversion
+Pillow==11.1.0                # Image loading and conversion
 numpy==1.26.4                 # Array operations (pinned - newer breaks faiss)
 
 # ============================================================
