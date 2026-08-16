@@ -1,13 +1,21 @@
-from ultralytics import YOLO, settings
-import cv2
 import os
-import uuid
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # ==========================================
-# FIX FOR PYTORCH 2.6 WEIGHTS_ONLY ERROR
+# EMERGENCY PATCH FOR PYTORCH 2.6
 # ==========================================
-# This forces Ultralytics to bypass the strict PyTorch 2.6 security check
-settings.update({"weights_only": False})
+import torch
+original_torch_load = torch.load
+def patched_torch_load(*args, **kwargs):
+    # Bypass the strict weights_only security check
+    kwargs['weights_only'] = False
+    return original_torch_load(*args, **kwargs)
+torch.load = patched_torch_load
+# ==========================================
+
+from ultralytics import YOLO
+import cv2
+import uuid
 
 TEMP_DIR = "temp"
 model = YOLO("models/drp_yolo.pt")  # fine-tuned on DeepFashion2 (Phase 5)
