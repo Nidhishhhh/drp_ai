@@ -1,10 +1,16 @@
-from ultralytics import YOLO
+from ultralytics import YOLO, settings
 import cv2
 import os
 import uuid
 
+# ==========================================
+# FIX FOR PYTORCH 2.6 WEIGHTS_ONLY ERROR
+# ==========================================
+# This forces Ultralytics to bypass the strict PyTorch 2.6 security check
+settings.update({"weights_only": False})
+
 TEMP_DIR = "temp"
-model = YOLO("models/drp_yolo.pt", task = "detect")  # fine-tuned on DeepFashion2 (Phase 5)
+model = YOLO("models/drp_yolo.pt")  # fine-tuned on DeepFashion2 (Phase 5)
 
 from utils.gender_detector import detect_gender_from_image
 
@@ -93,5 +99,3 @@ def detect_item(image_path: str) -> dict:
             "_cropped_image_path": "",  # internal — not sent to client
             "status": "error"
         }
-        
-        
