@@ -4,7 +4,7 @@ import os
 import uuid
 
 TEMP_DIR = "temp"
-model = YOLO("models/drp_yolo.pt")  # fine-tuned on DeepFashion2 (Phase 5)
+model = YOLO("models/drp_yolo.pt", task = "detect")  # fine-tuned on DeepFashion2 (Phase 5)
 
 from utils.gender_detector import detect_gender_from_image
 
