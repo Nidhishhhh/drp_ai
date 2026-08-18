@@ -1,9 +1,3 @@
-"""
-drp.ai — database/session.py
-Async SQLAlchemy session management.
-Import get_db in FastAPI routes as a dependency.
-"""
-
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.pool import NullPool
 import os
@@ -12,7 +6,7 @@ import os
 # postgresql:// -> postgresql+asyncpg://
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://neondb_owner:npg_aqgw4hAX2xRj@ep-dawn-surf-aokt6ql5.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+    "URL"
 ).replace("postgresql://", "postgresql+asyncpg://").replace("?sslmode=require", "")
 
 engine = create_async_engine(
@@ -30,18 +24,6 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 async def get_db() -> AsyncSession:
-    """
-    FastAPI dependency — yields an async database session.
-
-    Usage in routes:
-        from database.session import get_db
-        from sqlalchemy.ext.asyncio import AsyncSession
-        from fastapi import Depends
-
-        @router.get("/example")
-        async def example(db: AsyncSession = Depends(get_db)):
-            ...
-    """
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -52,10 +34,6 @@ async def get_db() -> AsyncSession:
 
 
 async def init_db():
-    """
-    Creates all tables on startup if they don't exist.
-    Called from main.py lifespan.
-    """
     from database.models import Base
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
