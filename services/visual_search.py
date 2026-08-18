@@ -12,15 +12,15 @@ from services.currency import get_usd_to_inr, convert_usd_to_inr
 # Your two RapidAPI keys
 RAPIDAPI_KEY = os.getenv(
     "RAPIDAPI_KEY",
-    "b56cf480f5msh4207aa183beeeaep1afad7jsn1466706ac750"
+    "API-KEY"
 )
 
 RAPIDAPI_KEY2 = os.getenv(
     "RAPIDAPI_KEY2",
-    "d3f021ca04mshc0fe956ed85d977p18d665jsn8e8ded49b834"
+    "API-KEY"
 )
 
-LENS_URL = "https://real-time-lens-data.p.rapidapi.com/visual-matches"
+LENS_URL = "URL"
 LENS_HOST = "real-time-lens-data.p.rapidapi.com"
 
 
