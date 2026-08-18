@@ -9,7 +9,7 @@ import httpx
 import os
 import time
 
-EXCHANGE_API_KEY = os.getenv("EXCHANGE_API_KEY", "a2662fa14b919777ecd6f949")
+EXCHANGE_API_KEY = os.getenv("EXCHANGE_API_KEY", "API-KEY")
 EXCHANGE_URL = f"https://v6.exchangerate-api.com/v6/{EXCHANGE_API_KEY}/pair/USD/INR"
 
 # Cache
