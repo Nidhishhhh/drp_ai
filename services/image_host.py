@@ -4,7 +4,7 @@ import os
 from PIL import Image
 import io
 
-IMGBB_API_KEY = os.getenv("IMGBB_API_KEY", "3ffece779b29f1bae2016c5e60176b22")
+IMGBB_API_KEY = os.getenv("IMGBB_API_KEY", "API-KEY")
 IMGBB_URL = "https://api.imgbb.com/1/upload"
 
 
