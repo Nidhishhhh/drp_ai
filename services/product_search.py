@@ -9,7 +9,7 @@ import asyncio
 
 RAPIDAPI_KEY = os.getenv(
     "RAPIDAPI_KEY",
-    "b56cf480f5msh4207aa183beeeaep1afad7jsn1466706ac750"
+    "API-KEY"
 )
 
 RAPIDAPI_HOST = "real-time-product-search.p.rapidapi.com"
