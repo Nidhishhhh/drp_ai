@@ -30,7 +30,7 @@ drp.ai is an AI-driven visual search engine that allows users to upload a photo 
 - **FAISS** – Facebook's library for efficient similarity search.
 - **SQLAlchemy & AsyncPG** – Database ORM and connection.
 - **Celery & Redis** – Background task queue for image processing.
-- **Requests & HTTPx** – For external API integration.
+- **Requests & HTTPx** – For external API integration.  
 
 ### Frontend
 - **React.js** – Modern UI library.
@@ -40,7 +40,3 @@ drp.ai is an AI-driven visual search engine that allows users to upload a photo 
 ### Hosting & Deployment
 - **Backend:** Hosted on Google Colab (with 12GB RAM) + Cloudflare Tunnel (Public URL).
 - **Frontend:** Hosted on Netlify (CDN & Build pipelines).
-
----
-
-## 📂 Project Structure
