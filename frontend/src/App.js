@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/v1";
+const API_BASE = "https://fall-likelihood-subdivision-yellow.trycloudflare.com/api/v1";
 
 const COLORS = {
   bg: "#0A0A0A",
