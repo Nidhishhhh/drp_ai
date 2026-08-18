@@ -1,10 +1,3 @@
-"""
-drp.ai — services/currency.py
-Fetches live USD to INR exchange rate from ExchangeRate-API.
-Caches the rate for 1 hour to minimize API calls.
-Free tier: 1,500 requests/month — with caching effectively 36,000 searches/month.
-"""
-
 import httpx
 import os
 import time
