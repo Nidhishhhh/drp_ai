@@ -1,9 +1,3 @@
-"""
-drp.ai — services/visual_search.py
-Uses Real-Time Lens Data API (Google Lens) to find visually similar products.
-Converts USD prices to INR using live exchange rate.
-"""
-
 import httpx
 import os
 import asyncio
